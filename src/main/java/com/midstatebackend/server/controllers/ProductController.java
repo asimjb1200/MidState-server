@@ -1,5 +1,6 @@
 package com.midstatebackend.server.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,11 +17,13 @@ import com.stripe.model.Product;
 import com.stripe.model.ProductCollection;
 
 import com.google.gson.Gson;
+import com.midstatebackend.server.models.ProductModel;
 
 @RestController
 @CrossOrigin
 @Data
-public class HomeController {
+public class ProductController {
+    // retrieve key from properties file
     @Value("${stripe.test_key}")
     private String testKey;
 
@@ -31,13 +34,24 @@ public class HomeController {
     }
 
     @GetMapping("/all-products")
-    public ProductCollection allProducts() throws StripeException {
+    public String allProducts() throws StripeException {
         Stripe.apiKey = testKey;
+        var products = new ArrayList<ProductModel>();
+        Gson gson = new Gson();
 
         Map<String, Object> params = new HashMap<>();
         params.put("limit", 3);
 
-        ProductCollection products = Product.list(params);
-        return products;
+        // retrieve the products from stripe's api
+        ProductCollection stripeProducts = Product.list(params);
+
+        // loop through the products and pull out the data I need
+        for (Product x : stripeProducts.getData()) {
+            products.add(new ProductModel(x.getName(), x.getId(), 20, x.getImages().get(0)));
+        }
+
+        String productDataStringified = gson.toJson(products);
+
+        return productDataStringified;
     }
 }

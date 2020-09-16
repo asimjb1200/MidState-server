@@ -2,9 +2,13 @@ package com.midstatebackend.server.models;
 
 import java.util.List;
 
+import lombok.Data;
+
+@Data
 public class ProductModel {
-    private String name;
-    private String productID;
-    private Integer price;
-    private String[] images;
+    private final String productName;
+    private final String productID;
+    private final Integer price;
+    private final String photoUrl;
+    private String productSex = "Male";
 }
